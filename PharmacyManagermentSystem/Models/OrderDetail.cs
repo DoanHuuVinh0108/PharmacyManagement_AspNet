@@ -12,7 +12,7 @@ namespace PharmacyManagermentSystem.Model
     public class OrderDetail
     {
         public int Quantity { get; set; }
-        public int Price { get; set; }
+        public double Price { get; set; }
 
         public int OrderId { get; set; }
         [ForeignKey("OrderId")]

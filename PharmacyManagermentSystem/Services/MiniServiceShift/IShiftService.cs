@@ -6,9 +6,10 @@ namespace PharmacyManagermentSystem.Services.MiniServiceShift
 {
     public interface IShiftService
     {
-        Task<ShiftResponse> CreateShift(CreateShiftRequest request);
+        Task<bool> CreateShift(CreateShiftRequest request);
         Task<ShiftResponse> UpdateShift(UpdateShiftRequest request);
-        Task<List<Shift>> GetAll();
+        Task<List<Shift>> GetAll(DateOnly from, DateOnly to, int pharmacyId);
         Task<bool> DeleteShift(DeleteShiftRequest request);
+        Task<PaginatedList<Shift>> getByPage(int pageIndex, int pageSize, int pharmacyId);
     }
 }

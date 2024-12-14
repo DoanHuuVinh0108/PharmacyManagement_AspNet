@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using PharmacyManagermentSystem.Request;
 using PharmacyManagermentSystem.Services.MiniServiceDoctor;
 
@@ -6,6 +7,7 @@ namespace PharmacyManagermentSystem.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin,Employee")]
     public class DoctorController : ControllerBase
     {
         private readonly IDoctorService _doctorService;
@@ -13,12 +15,12 @@ namespace PharmacyManagermentSystem.Controllers
         {
             _doctorService = doctorService;
         }
-        [HttpGet("getAll")]
-        public async Task<IActionResult> GetAllDoctor()
+        [HttpGet("getAll/{pageIndex}/{pageSize}")]
+        public async Task<IActionResult> GetAllDoctor(int pageIndex, int pageSize)
         {
             try
             {
-                var response = await _doctorService.GetAllDoctor();
+                var response = await _doctorService.GetAllDoctor(pageIndex,pageSize);
                 return Ok(response);
             }
             catch (Exception ex)

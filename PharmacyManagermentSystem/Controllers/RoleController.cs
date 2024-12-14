@@ -51,7 +51,7 @@ namespace PharmacyManagermentSystem.Controllers
             }
         }
 
-        [HttpGet("get")]
+        [HttpGet("getAll")]
         public async Task<IActionResult> GetRoles()
         {
             try

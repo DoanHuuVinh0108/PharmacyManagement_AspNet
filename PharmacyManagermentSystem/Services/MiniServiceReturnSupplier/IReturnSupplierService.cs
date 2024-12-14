@@ -9,7 +9,7 @@ namespace PharmacyManagermentSystem.Services.MiniServiceReturnSupplier
     {
         Task<ReturnSupplierResponse> CreateReturnSupplier(CreateReturnSupplierRequest request);
         Task<ReturnSupplierResponse> UpdateReturnSupplier(UpdateReturnSupplierRequest request);
-        Task<List<ReturnSupplier>> GetAll();
+        Task<PaginatedList<ReturnSupplierResponse>> GetAll(int pageIndex, int pageSize, int pharmacyId);
         Task<bool> Delete(DeleteReturnSupplierRequest request);
     }
 }

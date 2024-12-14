@@ -1,0 +1,11 @@
+From: Change Password <vinhb2014633@gmail.com>
+Date: Sat, 23 Nov 2024 23:58:46 +0700
+Subject: Reset Password
+Message-Id: <CDWO2343POU4.56O3MH9XN64D1@desktop-lkv1966>
+Sender: Change Password <vinhb2014633@gmail.com>
+To: doanhuuvinh0108@gmail.com
+MIME-Version: 1.0
+Content-Type: text/html; charset=utf-8
+
+Your password reset code is: 682580
+535: 535 Authentication failed: Access denied.

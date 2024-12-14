@@ -8,7 +8,7 @@ namespace PharmacyManagermentSystem.Services.MiniServiceDestructiveMedicine
     {
         Task<DestructiveMedicineResponse> CreateDestructiveMedicine(CreateDestructiveMedicineRequest request);
         Task<DestructiveMedicineResponse> UpdateDestructiveMedicine(UpdateDestructiveMedicineRequest request);
-        Task<List<DestructiveMedicine>> GetAll();
+        Task<PaginatedList<DestructiveMedicineResponse>> GetAll(int pageIndex, int pageSize, int pharmacyId);
         Task<bool> DeleteDestructiveMedicine(DeleteDestructiveMedicineRequest request);
     }
 }

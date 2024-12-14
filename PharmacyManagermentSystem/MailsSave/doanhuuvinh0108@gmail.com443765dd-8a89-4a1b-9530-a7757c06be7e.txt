@@ -1,0 +1,12 @@
+From: Change Password <vinhb2014633@gmail.com>
+Date: Sun, 24 Nov 2024 00:05:23 +0700
+Subject: Reset Password
+Message-Id: <KGM9QW53POU4.MEUCGX34F19V@desktop-lkv1966>
+Sender: Change Password <vinhb2014633@gmail.com>
+To: doanhuuvinh0108@gmail.com
+MIME-Version: 1.0
+Content-Type: text/html; charset=utf-8
+
+Your password reset code is: 879744
+535: 5.7.8 Username and Password not accepted. For more information, go to
+5.7.8  https://support.google.com/mail/?p=BadCredentials 41be03b00d2f7-7fbcc422d0bsm3069836a12.84 - gsmtp

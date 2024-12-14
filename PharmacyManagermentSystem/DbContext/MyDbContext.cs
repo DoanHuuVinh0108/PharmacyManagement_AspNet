@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using PharmacyManagermentSystem.Model;
+using PharmacyManagermentSystem.Models;
 
 namespace PharmacyManagermentSystem.DbContext
 {
@@ -26,6 +27,7 @@ namespace PharmacyManagermentSystem.DbContext
         public virtual DbSet<Salary> Salarys { get; set; }
         public virtual DbSet<Shift> Shifts { get; set; }
         public virtual DbSet<UserShift> UserShifts { get; set; }
+        public virtual DbSet<Notification> Notifications { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

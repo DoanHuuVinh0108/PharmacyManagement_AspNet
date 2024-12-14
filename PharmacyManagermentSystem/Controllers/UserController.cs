@@ -1,4 +1,5 @@
 ﻿
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PharmacyManagermentSystem.Request;
 using PharmacyManagermentSystem.Services.MiniServiceUser;
@@ -7,7 +8,7 @@ namespace PharmacyManagermentSystem.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-
+    [Authorize(Roles = "Admin,Employee")]
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -15,12 +16,12 @@ namespace PharmacyManagermentSystem.Controllers
         {
             _userService = userService;
         }
-        [HttpGet("GetAll")]
-        public async Task<IActionResult> GetUsers()
+        [HttpGet("getAll/{pageIndex}/{pageSize}")]
+        public async Task<IActionResult> GetUsers(int pageIndex, int pageSize)
         {
             try
             {
-                var response = await _userService.GetUsers();
+                var response = await _userService.GetUsers(pageIndex,pageSize);
                 return Ok(response);
             }
             catch (Exception ex)
@@ -30,7 +31,7 @@ namespace PharmacyManagermentSystem.Controllers
             }
 
         }
-        [HttpPost("Create")]
+        [HttpPost("add")]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest request)
         {
             try
@@ -45,7 +46,7 @@ namespace PharmacyManagermentSystem.Controllers
             }
 
         }
-        [HttpPut("Update")]
+        [HttpPut("update")]
         public async Task<IActionResult> UpdateUser([FromBody] UpdateUserRequest request)
         {
             try
@@ -60,13 +61,44 @@ namespace PharmacyManagermentSystem.Controllers
             }
 
         }
-        [HttpDelete("Delete/{id}")]
+        [HttpDelete("delete/{id}")]
+        [Authorize(Roles="Admin")]
         public async Task<IActionResult> DeleteUser( string id)
         {
             try
             {
                 await _userService.DeleteUserAsync(id);
                 return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+
+            }
+
+        }
+        [HttpGet("findByPhoneNumber/{phoneNumber}")]
+        public async Task<IActionResult> FindByPhoneNumber(string phoneNumber)
+        {
+            try
+            {
+                var response = await _userService.FindByPhoneNumber(phoneNumber);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+
+            }
+
+        }
+        [HttpGet("getByRole/{role}")]
+        public async Task<IActionResult> GetByRole(string role)
+        {
+            try
+            {
+                var response = await _userService.GetByRole(role);
+                return Ok(response);
             }
             catch (Exception ex)
             {

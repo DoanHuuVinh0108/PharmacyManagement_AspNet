@@ -2,8 +2,9 @@
 {
     public class PrescribeMedicineResponse
     {
-        public string TenThuoc { get; set; }
-        public int SoLuong { get; set; }
+        public string MedicineName { get; set; }
+        public string MedicineId { get; set; }
+        public int Quantity { get; set; }
         public string PrecsriptionId { get; set; }
     }
 }

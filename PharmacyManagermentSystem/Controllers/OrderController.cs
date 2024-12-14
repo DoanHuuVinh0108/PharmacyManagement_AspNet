@@ -1,11 +1,15 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using PharmacyManagermentSystem.Model;
 using PharmacyManagermentSystem.Request;
+using PharmacyManagermentSystem.Response;
 using PharmacyManagermentSystem.Services.MiniServiceOrder;
 
 namespace PharmacyManagermentSystem.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin,Employee")]
     public class OrderController : ControllerBase
     {
         private readonly IOrderService _orderService;
@@ -13,12 +17,25 @@ namespace PharmacyManagermentSystem.Controllers
         {
             _orderService = orderService;
         }
-        [HttpGet("getAll")]
-        public async Task<IActionResult> GetAllOrders()
+        [HttpGet("getAll/{pageIndex}/{pageSize}/{pharmacyId}")]
+        public async Task<IActionResult> GetAllOrders(int pageIndex, int pageSize, int pharmacyId)
         {
             try
             {
-                var response = await _orderService.GetAll();
+                var response = await _orderService.GetAll(pageIndex,pageSize,pharmacyId);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+        [HttpGet("getById/{id}")]
+        public async Task<IActionResult> GetOrderById(int id)
+        {
+            try
+            {
+                var response = await _orderService.getById(id);
                 return Ok(response);
             }
             catch (Exception ex)

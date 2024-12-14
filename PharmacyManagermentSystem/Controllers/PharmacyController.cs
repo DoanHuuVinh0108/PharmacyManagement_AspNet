@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using PharmacyManagermentSystem.Request;
 using PharmacyManagermentSystem.Services.MiniServicePharmacy;
 
@@ -6,6 +7,7 @@ namespace PharmacyManagermentSystem.Controllerss
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin")]
     public class PharmacyController : ControllerBase
     {
         private readonly IPharmacyService _pharmacyService;
@@ -13,12 +15,28 @@ namespace PharmacyManagermentSystem.Controllerss
         {
             _pharmacyService = pharmacyService;
         }
-        [HttpGet("getAll")]
-        public async Task<IActionResult> GetAllPharmacy()
+       
+        [HttpGet("getAll/{pageIndex}/{pageSize}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetAllPharmacy(int pageIndex, int pageSize)
         {
             try
             {
-                var response = await _pharmacyService.GetAllPharmacy();
+                var response = await _pharmacyService.GetAllPharmacy(pageIndex, pageSize);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+        [HttpGet("get")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetPharmacy()
+        {
+            try
+            {
+                var response = await _pharmacyService.GetPharmacy();
                 return Ok(response);
             }
             catch (Exception ex)
@@ -27,6 +45,7 @@ namespace PharmacyManagermentSystem.Controllerss
             }
         }
         [HttpPost("add")]
+       
         public async Task<IActionResult> CreatePharmacy([FromBody] CreatePharmacyRequest payload)
         {
             try

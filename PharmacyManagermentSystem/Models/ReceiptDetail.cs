@@ -6,7 +6,8 @@ namespace PharmacyManagermentSystem.Model
     [PrimaryKey(
         nameof(ReceiptId), 
         nameof(BatchNumber),
-        nameof(MedicineId)
+        nameof(MedicineId),
+        nameof(CategoryId)
         )]
     [Index(nameof(CategoryId), nameof(BatchNumber), nameof(MedicineId),IsUnique =true)]
     public class ReceiptDetail
@@ -19,6 +20,6 @@ namespace PharmacyManagermentSystem.Model
         public Category Category { get; set; }=null!;
         public int Quantity { get; set; }
         public string Status { get; set; }
-        public int Price { get; set; }
+        public double Price { get; set; }
     }
 }

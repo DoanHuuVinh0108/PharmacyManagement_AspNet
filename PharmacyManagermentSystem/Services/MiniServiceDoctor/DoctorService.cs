@@ -51,10 +51,19 @@ namespace PharmacyManagermentSystem.Services.MiniServiceDoctor
                 Email = doctor.Email
             };
         }
-        public async Task<List<Doctor>> GetAllDoctor()
+        public async Task<PaginatedList<Doctor>> GetAllDoctor(int pageIndex, int pageSize)
         {
-            var doctors = await _dbContext.Doctors.ToListAsync();
-            return doctors;
+            if (pageIndex < 1) pageIndex = 1;
+            if (pageSize < 1) pageSize = 10;
+            var totalItems = await _dbContext.Doctors.CountAsync();
+            var doctors = await _dbContext.Doctors.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToListAsync();
+            return new PaginatedList<Doctor>{
+                Items = doctors,
+                TotalItems = totalItems,
+                Page = pageIndex,
+                PageSize = pageSize
+            };
+           
         }
         public async Task<bool> DeleteDoctor(int id)
         {

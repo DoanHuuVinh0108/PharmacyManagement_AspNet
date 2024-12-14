@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using PharmacyManagermentSystem.Request;
 using PharmacyManagermentSystem.Services.MiniServiceCategory;
 
@@ -6,6 +7,7 @@ namespace PharmacyManagermentSystem.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin,Employee")]
     public class CategoryController : ControllerBase
     {
         private readonly ICategoryService _categoryService;
@@ -13,12 +15,25 @@ namespace PharmacyManagermentSystem.Controllers
         {
             _categoryService = categoryService;
         }
-        [HttpGet("getAll")]
-        public async Task<IActionResult> GetAll()
+        [HttpGet("getAll/{pageIndex}/{pageSize}")]
+        public async Task<IActionResult> GetAll(int pageIndex, int pageSize)
         {
             try
             {
-                var response = await _categoryService.GetAll();
+                var response = await _categoryService.GetAll(pageIndex,pageSize);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+        [HttpGet("getById/{id}")]
+        public async Task<IActionResult> GetById(string id)
+        {
+            try
+            {
+                var response = await _categoryService.getById(id);
                 return Ok(response);
             }
             catch (Exception ex)
@@ -58,6 +73,19 @@ namespace PharmacyManagermentSystem.Controllers
             try
             {
                 var response = await _categoryService.DeleteCategory(id);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+        [HttpGet("find/{medicineName}")]
+        public async Task<IActionResult> FindByName(string medicineName)
+        {
+            try
+            {
+                var response = await _categoryService.FindByName(medicineName);
                 return Ok(response);
             }
             catch (Exception ex)

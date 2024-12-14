@@ -58,6 +58,23 @@ namespace PharmacyManagermentSystem.Services.MiniServiceSupplier
         {
            return await _Dbcontext.Suppliers.ToListAsync();
         }
+        public async Task<PaginatedList<Supplier>> GetByPage(int pageIndex, int pageSize)
+        {
+            if (pageIndex < 1) pageIndex = 1;
+            if (pageSize < 1) pageSize = 10;
+            var totalItems = await _Dbcontext.Suppliers.CountAsync();
+            var suppliers = await _Dbcontext.Suppliers
+                                             .Skip((pageIndex - 1) * pageSize)
+                                             .Take(pageSize)
+                                             .ToListAsync();
+            return new PaginatedList<Supplier>
+            {
+                Items = suppliers,
+                TotalItems = totalItems,
+                Page = pageIndex,
+                PageSize = pageSize
+            };
+        }
         public async Task<bool> DeleteSupplier(int id)
         {
             var supplier = await _Dbcontext.Suppliers.FindAsync(id);

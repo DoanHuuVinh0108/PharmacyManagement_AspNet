@@ -52,10 +52,28 @@ namespace PharmacyManagermentSystem.Services.MiniServicePharmacy
                 Email = pharmacy.Email
             };
         }
-        public async Task<List<Pharmacy>> GetAllPharmacy()
+        public async Task<PaginatedList<Pharmacy>> GetAllPharmacy(int pageIndex, int pageSize)
         {
-            var pharmacies = await _dbContext.Pharmacies.ToListAsync();
-            return pharmacies;
+            if (pageIndex < 1) pageIndex = 1;
+            if (pageSize < 1) pageSize = 10;
+            var totalItems = await _dbContext.Pharmacies.CountAsync();
+            var pharmacies = await _dbContext.Pharmacies.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToListAsync();
+            return new PaginatedList<Pharmacy>
+            {
+                Items = pharmacies,
+                TotalItems = totalItems,
+                Page = pageIndex,
+                PageSize = pageSize
+            };
+        }
+        public async Task<List<Pharmacy>> GetPharmacy()
+        {
+            var pharmacy = await _dbContext.Pharmacies.ToListAsync();
+            if (pharmacy == null)
+            {
+                throw new Exception("Pharmacy not found");
+            }
+            return pharmacy;
         }
         public async Task<bool> DeletePharmacy(int id)
         {
@@ -70,3 +88,9 @@ namespace PharmacyManagermentSystem.Services.MiniServicePharmacy
         }
     }
 }
+
+
+
+
+
+

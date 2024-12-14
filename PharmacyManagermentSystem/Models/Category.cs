@@ -7,7 +7,7 @@ namespace PharmacyManagermentSystem.Model
     {
         public string Id { get; set; }
         public string MedicineName { get; set; }
-        public int Price { get; set; }
+        public double Price { get; set; }
         public string ActiveIngredient { get; set; }
         public string Classification { get; set; }
         public string Concentration { get; set; }

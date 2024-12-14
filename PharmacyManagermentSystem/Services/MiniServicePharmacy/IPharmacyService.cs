@@ -8,7 +8,8 @@ namespace PharmacyManagermentSystem.Services.MiniServicePharmacy
     {
         Task<PharmacyResponse> CreatePharmacy(CreatePharmacyRequest payload);
         Task<PharmacyResponse> UpdatePharmacy(int id, UpdatePharmacyRequest payload);
-        Task<List<Pharmacy>> GetAllPharmacy();
+        Task<PaginatedList<Pharmacy>> GetAllPharmacy(int pageIndex, int pageSize);
         Task<bool> DeletePharmacy(int id);
+        Task<List<Pharmacy>> GetPharmacy();
     }
 }

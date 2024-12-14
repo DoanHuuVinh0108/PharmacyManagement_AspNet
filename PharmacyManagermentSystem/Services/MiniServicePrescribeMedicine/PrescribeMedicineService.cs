@@ -18,32 +18,35 @@ namespace PharmacyManagermentSystem.Services.MiniServicePrescribeMedicine
         {
             var prescribeMedicine = new PrescribeMedicine
             {
-                TenThuoc = request.TenThuoc,
-                SoLuong = request.SoLuong,
+                MedicineId = request.MedicineId,
+                MedicineName = request.MedicineName,
+                Quantity = request.Quantity, 
                 PrecsriptionId = request.PrecsriptionId
             };
             _DbContext.PrescribeMedicines.Add(prescribeMedicine);
             await _DbContext.SaveChangesAsync();
             return new PrescribeMedicineResponse
             {
-                TenThuoc = prescribeMedicine.TenThuoc,
-                SoLuong = prescribeMedicine.SoLuong,
+                MedicineName = prescribeMedicine.MedicineName,
+                MedicineId = prescribeMedicine.MedicineId,
+                Quantity = prescribeMedicine.Quantity,
                 PrecsriptionId = prescribeMedicine.PrecsriptionId
             };
         }
         public async Task<PrescribeMedicineResponse> UpdatePrescribeMedicine (UpdatePrescribeMedicineRequest request)
         {
-            var prescribeMedicine = await _DbContext.PrescribeMedicines.FindAsync(request.TenThuoc,request.PrecsriptionId);
+            var prescribeMedicine = await _DbContext.PrescribeMedicines.FindAsync(request.MedicineId,request.PrecsriptionId);
             if (prescribeMedicine == null)
             {
                 throw new Exception("PrescribeMedicine not found");
             }
-            prescribeMedicine.SoLuong = request.SoLuong;
+            prescribeMedicine.Quantity = request.Quantity;
             await _DbContext.SaveChangesAsync();
             return new PrescribeMedicineResponse
             {
-                TenThuoc = prescribeMedicine.TenThuoc,
-                SoLuong = prescribeMedicine.SoLuong,
+                MedicineName = prescribeMedicine.MedicineName,
+                MedicineId = prescribeMedicine.MedicineId,
+                Quantity = prescribeMedicine.Quantity,
                 PrecsriptionId = prescribeMedicine.PrecsriptionId
             };
         }
@@ -54,7 +57,7 @@ namespace PharmacyManagermentSystem.Services.MiniServicePrescribeMedicine
         }
         public async Task<PrescribeMedicineResponse> DeletePrescribeMedicine(DeletePrescribeMedicineRequest request)
         {
-            var prescribeMedicine = await _DbContext.PrescribeMedicines.FindAsync(request.TenThuoc, request.PrecsriptionId);
+            var prescribeMedicine = await _DbContext.PrescribeMedicines.FindAsync(request.MedicineId, request.PrecsriptionId);
             if (prescribeMedicine == null)
             {
                 throw new Exception("PrescribeMedicine not found");
@@ -63,8 +66,9 @@ namespace PharmacyManagermentSystem.Services.MiniServicePrescribeMedicine
             await _DbContext.SaveChangesAsync();
             return new PrescribeMedicineResponse
             {
-                TenThuoc = prescribeMedicine.TenThuoc,
-                SoLuong = prescribeMedicine.SoLuong,
+                MedicineName = prescribeMedicine.MedicineName,
+                MedicineId = prescribeMedicine.MedicineId,
+                Quantity = prescribeMedicine.Quantity,
                 PrecsriptionId = prescribeMedicine.PrecsriptionId
             };
         }

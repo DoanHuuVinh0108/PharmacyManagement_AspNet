@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using PharmacyManagermentSystem.Request;
 using PharmacyManagermentSystem.Services.MiniServiceDestructiveMedicine;
 
@@ -6,6 +7,7 @@ namespace PharmacyManagermentSystem.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin,Employee")]
     public class DestructiveMedicineController : ControllerBase
     {
         private readonly IDestructiveMedicineService _destructiveMedicineService;
@@ -13,12 +15,12 @@ namespace PharmacyManagermentSystem.Controllers
         {
             _destructiveMedicineService = destructiveMedicineService;
         }
-        [HttpGet("getAll")]
-        public async Task<IActionResult> GetAll()
+        [HttpGet("getAll/{pageIndex}/{pageSize}/{pharmacyId}")]
+        public async Task<IActionResult> GetAll(int pageIndex, int pageSize,int pharmacyId)
         {
             try
             {
-                var result = await _destructiveMedicineService.GetAll();
+                var result = await _destructiveMedicineService.GetAll(pageIndex,pageSize,pharmacyId);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -53,11 +55,17 @@ namespace PharmacyManagermentSystem.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
-        [HttpDelete("delete")]
-        public async Task<IActionResult> DeleteDestructiveMedicine([FromBody] DeleteDestructiveMedicineRequest request)
+        [HttpDelete("delete/{id}/{batchNumber}/{CategoryId}")]
+        public async Task<IActionResult> DeleteDestructiveMedicine(string id, string batchNumber, string CategoryId)
         {
             try
             {
+                var request = new DeleteDestructiveMedicineRequest
+                {
+                    MedicineId = id,
+                    BatchNumber = batchNumber,
+                    CategoryId = CategoryId
+                };
                 var result = await _destructiveMedicineService.DeleteDestructiveMedicine(request);
                 return Ok(result);
             }

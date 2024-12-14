@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -10,8 +11,10 @@ using PharmacyManagermentSystem.Services.MiniServiceCaching;
 using PharmacyManagermentSystem.Services.MiniServiceCategory;
 using PharmacyManagermentSystem.Services.MiniServiceDestructiveMedicine;
 using PharmacyManagermentSystem.Services.MiniServiceDoctor;
+using PharmacyManagermentSystem.Services.MiniServiceEmail;
 using PharmacyManagermentSystem.Services.MiniServiceImageCategory;
 using PharmacyManagermentSystem.Services.MiniServiceMedicine;
+using PharmacyManagermentSystem.Services.MiniServiceNotification;
 using PharmacyManagermentSystem.Services.MiniServiceOrder;
 using PharmacyManagermentSystem.Services.MiniServiceOrderDetail;
 using PharmacyManagermentSystem.Services.MiniServicePharmacy;
@@ -23,6 +26,7 @@ using PharmacyManagermentSystem.Services.MiniServiceReturnSupplier;
 using PharmacyManagermentSystem.Services.MiniServiceRole;
 using PharmacyManagermentSystem.Services.MiniServiceSalary;
 using PharmacyManagermentSystem.Services.MiniServiceShift;
+using PharmacyManagermentSystem.Services.MiniServiceStatistics;
 using PharmacyManagermentSystem.Services.MiniServiceSupplier;
 using PharmacyManagermentSystem.Services.MiniServiceUpload;
 using PharmacyManagermentSystem.Services.MiniServiceUser;
@@ -91,6 +95,27 @@ builder.Services.AddScoped<IDestructiveMedicineService, DestructiveMedicineServi
 builder.Services.AddScoped<IReturnSupplierService, ReturnSupplierService>();
 builder.Services.AddScoped<IReceiptService, ReceiptService>();
 builder.Services.AddScoped<IReceiptDetailService, ReceiptDetailService>();
+builder.Services.AddScoped<IStatisticService, StatisticSerivce>();
+builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
+builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddHostedService<TaskService>();
+builder.Services.AddLogging(configure => {
+    configure.AddConsole();
+    configure.AddDebug();
+    configure.SetMinimumLevel(LogLevel.Trace);
+});
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddCors(opt =>
+{
+    opt.AddPolicy("MyCors", opt =>
+    {
+        opt.WithOrigins("http://localhost:5173",
+            "http://localhost:5062")
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials();
+    });
+});
 
 var app = builder.Build();
 
@@ -100,9 +125,14 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
 
 app.UseHttpsRedirection();
 
+app.UseCors("MyCors");
 app.UseAuthentication();
 app.UseAuthorization();
 

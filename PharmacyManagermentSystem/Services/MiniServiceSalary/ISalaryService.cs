@@ -8,7 +8,7 @@ namespace PharmacyManagermentSystem.Services.MiniServiceSalary
     {
         Task<SalaryResponse> CreateSalary(CreateSalaryRequest payload);
         Task<SalaryResponse> UpdateSalary(UpdateSalaryRequest payload);
-        Task<List<Salary>> GetAllSalary();
-        Task<bool> DeleteSalary(DeleteSalaryRequest payload);
+        Task<PaginatedList<SalaryResponse>> GetAllSalary(int pageIndex, int pageSize, int pharmacyId);
+        Task<bool> DeleteSalary(int Month, int Year, string EmployeeId);
     }
 }

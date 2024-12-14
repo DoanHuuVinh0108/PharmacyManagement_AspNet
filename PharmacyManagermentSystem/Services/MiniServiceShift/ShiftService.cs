@@ -13,30 +13,25 @@ namespace PharmacyManagermentSystem.Services.MiniServiceShift
         {
             _Dbcontext = context;
         }
-        public async Task<ShiftResponse> CreateShift(CreateShiftRequest request)
+        public async Task<bool> CreateShift(CreateShiftRequest request)
         {
-            var shift = new Shift
+            foreach (var item in request.Dates)
             {
-                Date = request.Date,
-                NameShift = request.NameShift,
-                Count = request.Count,
-                Limit = request.Limit,
-                PharmacyId = request.PharmacyId
-            };
-            await _Dbcontext.Shifts.AddAsync(shift);
-            await _Dbcontext.SaveChangesAsync();
-            return new ShiftResponse
-            {
-                Date = shift.Date,
-                NameShift = shift.NameShift,
-                Count = shift.Count,
-                Limit = shift.Limit,
-                PharmacyId = shift.PharmacyId
-            };
+                var shift = new Shift
+                {
+                    Date = item,
+                    Count = request.Count,
+                    Limit = request.Limit,
+                    PharmacyId = request.PharmacyId
+                };
+                await _Dbcontext.Shifts.AddAsync(shift);
+            }
+                await _Dbcontext.SaveChangesAsync();
+            return true;
         }
         public async Task<ShiftResponse> UpdateShift(UpdateShiftRequest request)
         {
-            var shift = await _Dbcontext.Shifts.FindAsync(request.Date, request.NameShift, request.PharmacyId);
+            var shift = await _Dbcontext.Shifts.FindAsync(request.Date, request.PharmacyId);
             if (shift == null)
             {
                 return null;
@@ -47,19 +42,20 @@ namespace PharmacyManagermentSystem.Services.MiniServiceShift
             return new ShiftResponse
             {
                 Date = shift.Date,
-                NameShift = shift.NameShift,
                 Count = shift.Count,
                 Limit = shift.Limit,
                 PharmacyId = shift.PharmacyId
             };
         }
-        public async Task<List<Shift>> GetAll()
+        public async Task<List<Shift>> GetAll(DateOnly from, DateOnly to, int pharmacyId)
         {
-           return await _Dbcontext.Shifts.ToListAsync();
+            var result = await _Dbcontext.Shifts.Where(x => x.Date >= from && x.Date <= to && x.PharmacyId == pharmacyId).ToListAsync();
+
+            return result;
         }
         public async Task<bool> DeleteShift(DeleteShiftRequest request)
         {
-            var shift = await _Dbcontext.Shifts.FindAsync(request.Date, request.NameShift, request.PharmacyId);
+            var shift = await _Dbcontext.Shifts.FindAsync(request.Date, request.PharmacyId);
             if (shift == null)
             {
                 return false;
@@ -67,6 +63,23 @@ namespace PharmacyManagermentSystem.Services.MiniServiceShift
             _Dbcontext.Shifts.Remove(shift);
             await _Dbcontext.SaveChangesAsync();
             return true;
+        }
+        public async Task<PaginatedList<Shift>> getByPage(int pageIndex, int pageSize, int pharmacyId)
+        {
+            if(pageIndex < 1) pageIndex = 1;
+            if (pageSize < 1) pageSize = 10;
+            var total = await _Dbcontext.Shifts.Where(x => x.PharmacyId == pharmacyId).CountAsync();
+            var result = await _Dbcontext.Shifts.Where(x => x.PharmacyId == pharmacyId)
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+            return new PaginatedList<Shift>
+            {
+                Items = result,
+                TotalItems = total,
+                Page = pageIndex,
+                PageSize = pageSize
+            };
         }
 
     }

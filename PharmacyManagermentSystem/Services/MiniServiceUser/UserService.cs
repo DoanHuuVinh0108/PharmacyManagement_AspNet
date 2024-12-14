@@ -78,9 +78,15 @@ namespace PharmacyManagermentSystem.Services.MiniServiceUser
                 }
             }
         }
-        public async Task<ListUserResponse> GetUsers()
+        public async Task<PaginatedList<UserDTO>> GetUsers(int pageIndex, int pageSize)
         {
-            var users = await _userManager.Users.ToListAsync();
+            if (pageIndex < 1) pageIndex = 1;
+            if (pageSize < 1) pageSize = 10;
+            var totalItems = await _dbContext.Users.CountAsync();
+            var users = await _dbContext.Users
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
             var userDtos = new List<UserDTO>();
 
             foreach (var user in users)
@@ -92,53 +98,79 @@ namespace PharmacyManagermentSystem.Services.MiniServiceUser
                     UserName = user.UserName,
                     Email = user.Email,
                     FullName = user.FullName,
+                    PhoneNumber = user.PhoneNumber,
+                    PharmacyId = user.PharmacyId,
                     Roles = roles,
                 };
                 userDtos.Add(userDto);
             }
-            var response = new ListUserResponse
+            return new PaginatedList<UserDTO>
             {
-                ListUsers = userDtos
-            };  
-            return response;
+                Items = userDtos,
+                TotalItems = totalItems,
+                Page = pageIndex,
+                PageSize = pageSize
+            };
         }
-        public async Task<UserDTO> UpdateUserAsync (UpdateUserRequest userUpdate)
+        public async Task<UserDTO> UpdateUserAsync(UpdateUserRequest userUpdate)
         {
+            using var transaction = await _dbContext.Database.BeginTransactionAsync();
             try
             {
                 var user = await _userManager.FindByIdAsync(userUpdate.Id);
                 if (user == null)
                 {
-                    throw new Exception("User not found");
-                }
-                user.UserName = userUpdate.Email;
-                user.NormalizedUserName = userUpdate.Email;
-                user.Email = userUpdate.Email;
-                user.NormalizedEmail = userUpdate.Email;
-                user.PhoneNumber = userUpdate.PhoneNumber;
-                user.FullName = userUpdate.FullName;
-                
-                var result = await _userManager.UpdateAsync(user);
-                if (!result.Succeeded)
-                {
-                    throw new Exception("Cannot update user");
-                }
-                else
-                {
-                    return new UserDTO
-                    {
-                        Id = user.Id,
-                        UserName = user.UserName,
-                        Email = user.Email,
-                        PhoneNumber = user.PhoneNumber,
-                        FullName = user.FullName,
-                        Roles = await _userManager.GetRolesAsync(user)
-                    };
+                    throw new ApplicationException("User not found");
                 }
 
-            }catch(Exception e)
+
+                user.UserName = userUpdate.Email;
+                user.NormalizedUserName = userUpdate.Email.ToUpper();
+                user.Email = userUpdate.Email;
+                user.NormalizedEmail = userUpdate.Email.ToUpper();
+                user.PhoneNumber = userUpdate.PhoneNumber;
+                user.FullName = userUpdate.FullName;
+                user.PharmacyId = userUpdate.PharmacyId;
+                var updateResult = await _userManager.UpdateAsync(user);
+                if (!updateResult.Succeeded)
+                {
+                    throw new ApplicationException($"Failed to update user: {string.Join(", ", updateResult.Errors.Select(e => e.Description))}");
+                }
+
+                var currentRoles = await _userManager.GetRolesAsync(user);
+                if (currentRoles.Any())
+                {
+                    var removeRolesResult = await _userManager.RemoveFromRolesAsync(user, currentRoles);
+                    if (!removeRolesResult.Succeeded)
+                    {
+                        throw new ApplicationException($"Failed to remove existing roles: {string.Join(", ", removeRolesResult.Errors.Select(e => e.Description))}");
+                    }
+                }
+
+                if (userUpdate.Roles?.Any() == true)
+                {
+                    var addRolesResult = await _userManager.AddToRolesAsync(user, userUpdate.Roles);
+                    if (!addRolesResult.Succeeded)
+                    {
+                        throw new ApplicationException($"Failed to add new roles: {string.Join(", ", addRolesResult.Errors.Select(e => e.Description))}");
+                    }
+                }
+
+                await transaction.CommitAsync();
+                return new UserDTO
+                {
+                    Id = user.Id,
+                    UserName = user.UserName,
+                    Email = user.Email,
+                    PhoneNumber = user.PhoneNumber,
+                    FullName = user.FullName,
+                    Roles = await _userManager.GetRolesAsync(user)
+                };
+            }
+            catch (Exception ex)
             {
-                throw new Exception(e.Message);
+                await transaction.RollbackAsync();
+                throw new ApplicationException($"Failed to update user: {ex.Message}", ex);
             }
         }
         public async Task DeleteUserAsync(string id)
@@ -160,5 +192,33 @@ namespace PharmacyManagermentSystem.Services.MiniServiceUser
                 throw new Exception(e.Message);
             }
         }
+        public async Task<List<UserDTO>> FindByPhoneNumber(string phoneNumber)
+        {
+            var users = await _dbContext.Users
+                .Where(x => x.PhoneNumber.ToLower().Contains(phoneNumber.ToLower()))
+                .Select(x => new UserDTO
+                {
+                    Id = x.Id,
+                    UserName = x.UserName,
+                    Email = x.Email,
+                    PhoneNumber = x.PhoneNumber,
+                    FullName = x.FullName
+                }).ToListAsync();
+            return users;
+        }
+        public async Task<List<UserDTO>> GetByRole(string role)
+        {
+            var users = await _userManager.GetUsersInRoleAsync(role);
+            var userDtos = new List<UserDTO>();
+            return users.Select(x => new UserDTO
+            {
+                Id = x.Id,
+                UserName = x.UserName,
+                Email = x.Email,
+                PhoneNumber = x.PhoneNumber,
+                FullName = x.FullName,
+                Roles = _userManager.GetRolesAsync(x).Result
+            }).ToList();
+        }    
     }
 }

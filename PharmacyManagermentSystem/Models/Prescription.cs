@@ -15,7 +15,9 @@ namespace PharmacyManagermentSystem.Model
         public int DoctorId { get; set; }
         [ForeignKey("DoctorId")]
         public Doctor Doctor { get; set; } = null!;
-        public Order? Order { get; set; }
+        public ICollection<PrescribeMedicine> PrescribeMedicines { get; set; } = new HashSet<PrescribeMedicine>();
+        public ICollection<Order> Orders { get; set; } = new HashSet<Order>();
+
 
     }
 }

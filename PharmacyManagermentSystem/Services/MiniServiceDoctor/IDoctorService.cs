@@ -8,7 +8,7 @@ namespace PharmacyManagermentSystem.Services.MiniServiceDoctor
     {
         Task<DoctorResponse> CreateDoctor(CreateDoctorRequest payload);
         Task<DoctorResponse> UpdateDoctor(int id, UpdateDoctorRequest payload);
-        Task<List<Doctor>> GetAllDoctor();
+        Task<PaginatedList<Doctor>> GetAllDoctor(int pageIndex, int pageSize);
         Task<bool> DeleteDoctor(int id);
     }
 }

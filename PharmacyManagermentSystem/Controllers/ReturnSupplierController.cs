@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using PharmacyManagermentSystem.Request;
 using PharmacyManagermentSystem.Services.MiniServiceReturnSupplier;
 
@@ -6,6 +7,7 @@ namespace PharmacyManagermentSystem.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin,Employee")]
     public class ReturnSupplierController : ControllerBase
     {
         private readonly IReturnSupplierService _returnSupplierService;
@@ -13,12 +15,12 @@ namespace PharmacyManagermentSystem.Controllers
         {
             _returnSupplierService = returnSupplierService;
         }
-        [HttpGet("getAll")]
-        public async Task<IActionResult> GetAll()
+        [HttpGet("getAll/{pageIndex}/{pageSize}/{pharmacyId}")]
+        public async Task<IActionResult> GetAll(int pageIndex, int pageSize, int pharmacyId)
         {
             try
             {
-                var result = await _returnSupplierService.GetAll();
+                var result = await _returnSupplierService.GetAll(pageIndex,pageSize,pharmacyId);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -56,11 +58,17 @@ namespace PharmacyManagermentSystem.Controllers
 
         }
 
-        [HttpDelete("delete")]
-        public async Task<IActionResult> Delete([FromBody] DeleteReturnSupplierRequest request)
+        [HttpDelete("delete/{id}/{batchNumber}/{categoryId}")]
+        public async Task<IActionResult> Delete(string id, string batchNumber,string categoryId)
         {
             try
             {
+                var request = new DeleteReturnSupplierRequest
+                {
+                    MedicineId = id,
+                    BatchNumber = batchNumber,
+                    CategoryId = categoryId
+                };
                 var result = await _returnSupplierService.Delete(request);
                 return Ok(result);
             }

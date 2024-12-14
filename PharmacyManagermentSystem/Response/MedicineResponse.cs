@@ -11,4 +11,6 @@
         public string CategoryId { get; set; }
         public int PharmacyId { get; set; }
     }
+   
+   
 }

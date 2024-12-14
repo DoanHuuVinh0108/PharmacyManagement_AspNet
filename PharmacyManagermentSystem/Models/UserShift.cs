@@ -3,16 +3,15 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PharmacyManagermentSystem.Model
 {
-    [PrimaryKey(nameof(EmployeeId), nameof(Date), nameof(NameShift), nameof(PharmacyId))]
+    [PrimaryKey(nameof(EmployeeId), nameof(Date), nameof(PharmacyId))]
     public class UserShift
     {
         public string EmployeeId { get; set; }
         [ForeignKey("EmployeeId")]
         public User Employee { get; set; }=null!;
-        public string NameShift { get; set; }
         public DateOnly Date { get; set; }
         public int PharmacyId { get; set; }
-        [ForeignKey("Date,NameShift,PharmacyId")]
+        [ForeignKey("Date,PharmacyId")]
         public Shift Shift { get; set; }=null!;
 
     }

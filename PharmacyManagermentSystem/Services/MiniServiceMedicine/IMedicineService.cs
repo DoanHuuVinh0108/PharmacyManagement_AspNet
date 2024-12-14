@@ -8,7 +8,11 @@ namespace PharmacyManagermentSystem.Services.MiniServiceMedicine
     {
         Task<MedicineResponse> CreateMedicine(CreateMedicineRequest request);
         Task<MedicineResponse> UpdateMedicine(UpdateMedicineRequest request);
-        Task<List<Medicine>> GetAll();
+        Task<PaginatedList<Medicine>> GetAll(int pageIndex, int pageSize,int pharmacyId);
         Task<bool> DeleteMedicine(DeleteMedicineRequest request);
+        Task<List<string>> GetByCategoryId(string CategoryId,int pharmacyId);
+        Task<List<string>> GetByBatchNumber(string BatchNumber, string CategoryId);
+        Task<int> GetQuantity(string batchNumber, string categoryId, string medicineId);
+
     }
 }

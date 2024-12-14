@@ -1,4 +1,5 @@
-﻿namespace PharmacyManagermentSystem.Request
+﻿
+namespace PharmacyManagermentSystem.Request
 {
     public class CreateOrderRequest
     {
@@ -7,6 +8,8 @@
         public string EmployeeId { get; set; }
         public string? PrescriptionId { get; set; } = null;
         public string? Status { get; set; } = null;
+        public double TotalPrice { get; set; }
+        public IList<AddOrderDetailRequest> createOrderDetailRequests { get; set; } 
     }
     public class UpdateOrderRequest
     {

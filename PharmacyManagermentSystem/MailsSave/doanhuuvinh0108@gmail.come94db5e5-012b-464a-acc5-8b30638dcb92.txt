@@ -1,0 +1,10 @@
+From: Change Password <vinhb2014633@gmail.com>
+Date: Sun, 24 Nov 2024 14:41:52 +0700
+Subject: Reset Password
+Message-Id: <A1KU1IV9POU4.UWNY7BQKKYW7@desktop-lkv1966>
+Sender: Change Password <vinhb2014633@gmail.com>
+To: doanhuuvinh0108@gmail.com
+MIME-Version: 1.0
+Content-Type: text/html; charset=utf-8
+
+Your password reset code is: 663180

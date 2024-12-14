@@ -1,4 +1,6 @@
-﻿  namespace PharmacyManagermentSystem.Request
+﻿using PharmacyManagermentSystem.Model;
+
+namespace PharmacyManagermentSystem.Request
 {
     public class CreatePrescriptionRequest
     {
@@ -6,6 +8,7 @@
         public IFormFile File { get; set; }
         public string CustomerId { get; set; }
         public int DoctorId { get; set; }
+        public IList<CreatePrescribeMedicineRequest> Medicines { get; set; } = new List<CreatePrescribeMedicineRequest>();
     }
     public class UpdatePrescriptionRequest
     {

@@ -64,14 +64,36 @@ namespace PharmacyManagermentSystem.Services.MiniServiceSalary
                 EmployeeId = Salary.EmployeeId
             };
         }
-        public async Task<List<Salary>> GetAllSalary()
+
+        public async Task<PaginatedList<SalaryResponse>> GetAllSalary(int pageIndex, int pageSize,int pharmacyId)
         {
-            var Salarys = await _Dbcontext.Salarys.ToListAsync();
-            return Salarys;
+            if (pageIndex < 1) pageIndex = 1;
+            if (pageSize < 1) pageSize = 10;
+
+            var totalItems = await _Dbcontext.Salarys.Where(x => x.Employee.PharmacyId == pharmacyId).CountAsync();
+            var Salarys = await _Dbcontext.Salarys.Include(x => x.Employee).Where(x => x.Employee.PharmacyId == pharmacyId).Skip((pageIndex - 1) * pageSize).Take(pageSize).ToListAsync();
+            return new PaginatedList<SalaryResponse>
+            {
+                Items = Salarys.Select(x => new SalaryResponse
+                {
+                    Month = x.Month,
+                    Year = x.Year,
+                    BasicSalary = x.BasicSalary,
+                    Bonus = x.Bonus,
+                    DayWorked = x.DayWorked,
+                    DayOff = x.DayOff,
+                    EmployeeId = x.EmployeeId,
+                    EmployeeName = x.Employee.FullName
+                }).ToList(),
+                TotalItems = totalItems,
+                Page = pageIndex,
+                PageSize = pageSize
+            };
+            
         }
-        public async Task<bool> DeleteSalary(DeleteSalaryRequest payload)
+        public async Task<bool> DeleteSalary(int Month, int Year, string EmployeeId)
         {
-            var Salary = await _Dbcontext.Salarys.FindAsync(payload.Month,payload.Year,payload.EmployeeId);
+            var Salary = await _Dbcontext.Salarys.FindAsync(Month,Year,EmployeeId);
             if (Salary == null)
             {
                 throw new Exception("Salary not found");

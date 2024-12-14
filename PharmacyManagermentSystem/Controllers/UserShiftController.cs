@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using PharmacyManagermentSystem.Request;
 using PharmacyManagermentSystem.Services.MiniServiceUserShift;
 
@@ -6,6 +7,7 @@ namespace PharmacyManagermentSystem.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin,Employee")]
     public class UserShiftController : ControllerBase
     {
         private readonly IUserShiftService _userShiftService;
@@ -13,14 +15,40 @@ namespace PharmacyManagermentSystem.Controllers
         {
             _userShiftService = userShiftService;
         }
-        [HttpGet("getAll")]
-        public async Task<IActionResult> GetAll()
+        [HttpGet("getAll/{from}/{to}/{pharmacyId}")]
+        public async Task<IActionResult> GetAll(DateOnly from, DateOnly to, int pharmacyId)
         {
             try { 
-                var userShifts = await _userShiftService.GetAll();
+                var userShifts = await _userShiftService.GetAll(from,to,pharmacyId);
                 return Ok(userShifts);
             }
             catch(Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+        [HttpGet("getById/{id}")]
+        public async Task<IActionResult> GetById(string id)
+        {
+            try
+            {
+                var userShifts = await _userShiftService.GetById(id);
+                return Ok(userShifts);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+        [HttpGet("getByDate/{date}/{pharmacyId}")]
+        public async Task<IActionResult> GetByDate(DateOnly date,int pharmacyId)
+        {
+            try
+            {
+                var userShifts = await _userShiftService.GetByDate(date,pharmacyId);
+                return Ok(userShifts);
+            }
+            catch (Exception ex)
             {
                 return StatusCode(500, ex.Message);
             }
@@ -51,11 +79,17 @@ namespace PharmacyManagermentSystem.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
-        [HttpDelete("delete")]
-        public async Task<IActionResult> Delete([FromBody] DeleteUserShiftRequest request)
+        [HttpDelete("delete/{id}/{date}/{pharmacyId}")]
+        public async Task<IActionResult> Delete(string id, DateOnly date, int pharmacyId)
         {
             try
             {
+                var request = new DeleteUserShiftRequest
+                {
+                    EmployeeId = id,
+                    Date = date,
+                    PharmacyId = pharmacyId
+                };
                 var response = await _userShiftService.DeleteUserShift(request);
                 return Ok(response);
             }

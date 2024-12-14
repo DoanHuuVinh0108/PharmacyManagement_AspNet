@@ -8,7 +8,9 @@ namespace PharmacyManagermentSystem.Services.MiniServiceReceipt
     {
         Task<ReceiptResponse> CreateReceipt(CreateReceiptRequest request);
         Task<ReceiptResponse> UpdateReceipt(int id, UpdateReceiptRequest request);
-        Task<List<Receipt>> GetAll();
+        Task<PaginatedList<ReceiptResponse>> GetAll(int pageIndex, int pageSize, int pharmacyId);
         Task<bool> Delete(int id);
+        Task<bool> AddReceipt(ReceiptRequest request);
+        Task<ReceiptDetailResponseById> getById(int id);
     }
 }

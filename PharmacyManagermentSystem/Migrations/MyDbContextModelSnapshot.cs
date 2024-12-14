@@ -191,8 +191,8 @@ namespace PharmacyManagermentSystem.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("Price")
-                        .HasColumnType("integer");
+                    b.Property<double>("Price")
+                        .HasColumnType("double precision");
 
                     b.Property<string>("ShelfLife")
                         .IsRequired()
@@ -200,7 +200,7 @@ namespace PharmacyManagermentSystem.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categorys");
+                    b.ToTable("Categorys", (string)null);
                 });
 
             modelBuilder.Entity("PharmacyManagermentSystem.Model.DestructiveMedicine", b =>
@@ -228,16 +228,13 @@ namespace PharmacyManagermentSystem.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("integer");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
-
                     b.HasKey("CategoryId", "BatchNumber", "MedicineId");
 
                     b.HasIndex("EmployeeId");
 
                     b.HasIndex("MedicineId", "BatchNumber", "CategoryId");
 
-                    b.ToTable("DestructiveMedicines");
+                    b.ToTable("DestructiveMedicines", (string)null);
                 });
 
             modelBuilder.Entity("PharmacyManagermentSystem.Model.Doctor", b =>
@@ -266,7 +263,7 @@ namespace PharmacyManagermentSystem.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Doctors");
+                    b.ToTable("Doctors", (string)null);
                 });
 
             modelBuilder.Entity("PharmacyManagermentSystem.Model.ImageCategogy", b =>
@@ -286,7 +283,7 @@ namespace PharmacyManagermentSystem.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("ImageCategogies");
+                    b.ToTable("ImageCategogies", (string)null);
                 });
 
             modelBuilder.Entity("PharmacyManagermentSystem.Model.Medicine", b =>
@@ -322,7 +319,7 @@ namespace PharmacyManagermentSystem.Migrations
 
                     b.HasIndex("PharmacyId");
 
-                    b.ToTable("Medicines");
+                    b.ToTable("Medicines", (string)null);
                 });
 
             modelBuilder.Entity("PharmacyManagermentSystem.Model.Order", b =>
@@ -336,6 +333,9 @@ namespace PharmacyManagermentSystem.Migrations
                     b.Property<string>("CustomerId")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date");
 
                     b.Property<string>("EmployeeId")
                         .IsRequired()
@@ -351,6 +351,9 @@ namespace PharmacyManagermentSystem.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<double>("TotalPrice")
+                        .HasColumnType("double precision");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CustomerId");
@@ -359,10 +362,9 @@ namespace PharmacyManagermentSystem.Migrations
 
                     b.HasIndex("PharmacyId");
 
-                    b.HasIndex("PrescriptionId")
-                        .IsUnique();
+                    b.HasIndex("PrescriptionId");
 
-                    b.ToTable("Orders");
+                    b.ToTable("Orders", (string)null);
                 });
 
             modelBuilder.Entity("PharmacyManagermentSystem.Model.OrderDetail", b =>
@@ -379,8 +381,8 @@ namespace PharmacyManagermentSystem.Migrations
                     b.Property<int>("OrderId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("Price")
-                        .HasColumnType("integer");
+                    b.Property<double>("Price")
+                        .HasColumnType("double precision");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("integer");
@@ -391,7 +393,7 @@ namespace PharmacyManagermentSystem.Migrations
 
                     b.HasIndex("MedicineId", "BatchNumber", "CategoryId");
 
-                    b.ToTable("OrderDetails");
+                    b.ToTable("OrderDetails", (string)null);
                 });
 
             modelBuilder.Entity("PharmacyManagermentSystem.Model.Pharmacy", b =>
@@ -420,28 +422,32 @@ namespace PharmacyManagermentSystem.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Pharmacies");
+                    b.ToTable("Pharmacies", (string)null);
                 });
 
             modelBuilder.Entity("PharmacyManagermentSystem.Model.PrescribeMedicine", b =>
                 {
-                    b.Property<string>("TenThuoc")
+                    b.Property<string>("MedicineId")
                         .HasColumnType("text");
 
                     b.Property<string>("PrecsriptionId")
                         .HasColumnType("text");
 
+                    b.Property<string>("MedicineName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("PrescriptionId")
                         .HasColumnType("text");
 
-                    b.Property<int>("SoLuong")
+                    b.Property<int>("Quantity")
                         .HasColumnType("integer");
 
-                    b.HasKey("TenThuoc", "PrecsriptionId");
+                    b.HasKey("MedicineId", "PrecsriptionId");
 
                     b.HasIndex("PrescriptionId");
 
-                    b.ToTable("PrescribeMedicines");
+                    b.ToTable("PrescribeMedicines", (string)null);
                 });
 
             modelBuilder.Entity("PharmacyManagermentSystem.Model.Prescription", b =>
@@ -470,7 +476,7 @@ namespace PharmacyManagermentSystem.Migrations
 
                     b.HasIndex("DoctorId");
 
-                    b.ToTable("Prescriptions");
+                    b.ToTable("Prescriptions", (string)null);
                 });
 
             modelBuilder.Entity("PharmacyManagermentSystem.Model.Receipt", b =>
@@ -502,7 +508,7 @@ namespace PharmacyManagermentSystem.Migrations
 
                     b.HasIndex("SupplierId");
 
-                    b.ToTable("Receipts");
+                    b.ToTable("Receipts", (string)null);
                 });
 
             modelBuilder.Entity("PharmacyManagermentSystem.Model.ReceiptDetail", b =>
@@ -517,11 +523,10 @@ namespace PharmacyManagermentSystem.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("CategoryId")
-                        .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("Price")
-                        .HasColumnType("integer");
+                    b.Property<double>("Price")
+                        .HasColumnType("double precision");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("integer");
@@ -530,12 +535,12 @@ namespace PharmacyManagermentSystem.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.HasKey("ReceiptId", "BatchNumber", "MedicineId");
+                    b.HasKey("ReceiptId", "BatchNumber", "MedicineId", "CategoryId");
 
                     b.HasIndex("CategoryId", "BatchNumber", "MedicineId")
                         .IsUnique();
 
-                    b.ToTable("ReceiptDetails");
+                    b.ToTable("ReceiptDetails", (string)null);
                 });
 
             modelBuilder.Entity("PharmacyManagermentSystem.Model.ReturnSupplier", b =>
@@ -549,6 +554,9 @@ namespace PharmacyManagermentSystem.Migrations
                     b.Property<string>("BatchNumber")
                         .HasColumnType("text");
 
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
@@ -556,6 +564,9 @@ namespace PharmacyManagermentSystem.Migrations
                     b.Property<string>("EmployeeId")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<double>("Price")
+                        .HasColumnType("double precision");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("integer");
@@ -575,7 +586,7 @@ namespace PharmacyManagermentSystem.Migrations
 
                     b.HasIndex("MedicineId", "BatchNumber", "CategoryId");
 
-                    b.ToTable("ReturnSuppliers");
+                    b.ToTable("ReturnSuppliers", (string)null);
                 });
 
             modelBuilder.Entity("PharmacyManagermentSystem.Model.Salary", b =>
@@ -589,11 +600,11 @@ namespace PharmacyManagermentSystem.Migrations
                     b.Property<string>("EmployeeId")
                         .HasColumnType("text");
 
-                    b.Property<int>("BasicSalary")
-                        .HasColumnType("integer");
+                    b.Property<double>("BasicSalary")
+                        .HasColumnType("double precision");
 
-                    b.Property<int>("Bonus")
-                        .HasColumnType("integer");
+                    b.Property<double>("Bonus")
+                        .HasColumnType("double precision");
 
                     b.Property<int>("DayOff")
                         .HasColumnType("integer");
@@ -605,16 +616,13 @@ namespace PharmacyManagermentSystem.Migrations
 
                     b.HasIndex("EmployeeId");
 
-                    b.ToTable("Salarys");
+                    b.ToTable("Salarys", (string)null);
                 });
 
             modelBuilder.Entity("PharmacyManagermentSystem.Model.Shift", b =>
                 {
                     b.Property<DateOnly>("Date")
                         .HasColumnType("date");
-
-                    b.Property<string>("NameShift")
-                        .HasColumnType("text");
 
                     b.Property<int>("PharmacyId")
                         .HasColumnType("integer");
@@ -625,11 +633,11 @@ namespace PharmacyManagermentSystem.Migrations
                     b.Property<int>("Limit")
                         .HasColumnType("integer");
 
-                    b.HasKey("Date", "NameShift", "PharmacyId");
+                    b.HasKey("Date", "PharmacyId");
 
                     b.HasIndex("PharmacyId");
 
-                    b.ToTable("Shifts");
+                    b.ToTable("Shifts", (string)null);
                 });
 
             modelBuilder.Entity("PharmacyManagermentSystem.Model.Supplier", b =>
@@ -658,7 +666,7 @@ namespace PharmacyManagermentSystem.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Suppliers");
+                    b.ToTable("Suppliers", (string)null);
                 });
 
             modelBuilder.Entity("PharmacyManagermentSystem.Model.User", b =>
@@ -742,17 +750,47 @@ namespace PharmacyManagermentSystem.Migrations
                     b.Property<DateOnly>("Date")
                         .HasColumnType("date");
 
-                    b.Property<string>("NameShift")
-                        .HasColumnType("text");
-
                     b.Property<int>("PharmacyId")
                         .HasColumnType("integer");
 
-                    b.HasKey("EmployeeId", "Date", "NameShift", "PharmacyId");
+                    b.HasKey("EmployeeId", "Date", "PharmacyId");
 
-                    b.HasIndex("Date", "NameShift", "PharmacyId");
+                    b.HasIndex("Date", "PharmacyId");
 
-                    b.ToTable("UserShifts");
+                    b.ToTable("UserShifts", (string)null);
+                });
+
+            modelBuilder.Entity("PharmacyManagermentSystem.Models.Notification", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Isread")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Notifications", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -876,8 +914,8 @@ namespace PharmacyManagermentSystem.Migrations
                         .IsRequired();
 
                     b.HasOne("PharmacyManagermentSystem.Model.Prescription", "Prescription")
-                        .WithOne("Order")
-                        .HasForeignKey("PharmacyManagermentSystem.Model.Order", "PrescriptionId");
+                        .WithMany("Orders")
+                        .HasForeignKey("PrescriptionId");
 
                     b.Navigation("Customer");
 
@@ -891,7 +929,7 @@ namespace PharmacyManagermentSystem.Migrations
             modelBuilder.Entity("PharmacyManagermentSystem.Model.OrderDetail", b =>
                 {
                     b.HasOne("PharmacyManagermentSystem.Model.Order", "Order")
-                        .WithMany()
+                        .WithMany("OrderDetails")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -910,7 +948,7 @@ namespace PharmacyManagermentSystem.Migrations
             modelBuilder.Entity("PharmacyManagermentSystem.Model.PrescribeMedicine", b =>
                 {
                     b.HasOne("PharmacyManagermentSystem.Model.Prescription", "Prescription")
-                        .WithMany()
+                        .WithMany("PrescribeMedicines")
                         .HasForeignKey("PrescriptionId");
 
                     b.Navigation("Prescription");
@@ -1049,13 +1087,22 @@ namespace PharmacyManagermentSystem.Migrations
 
                     b.HasOne("PharmacyManagermentSystem.Model.Shift", "Shift")
                         .WithMany("UserShifts")
-                        .HasForeignKey("Date", "NameShift", "PharmacyId")
+                        .HasForeignKey("Date", "PharmacyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Employee");
 
                     b.Navigation("Shift");
+                });
+
+            modelBuilder.Entity("PharmacyManagermentSystem.Models.Notification", b =>
+                {
+                    b.HasOne("PharmacyManagermentSystem.Model.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("PharmacyManagermentSystem.Model.Category", b =>
@@ -1081,6 +1128,11 @@ namespace PharmacyManagermentSystem.Migrations
                     b.Navigation("ReturnSuppliers");
                 });
 
+            modelBuilder.Entity("PharmacyManagermentSystem.Model.Order", b =>
+                {
+                    b.Navigation("OrderDetails");
+                });
+
             modelBuilder.Entity("PharmacyManagermentSystem.Model.Pharmacy", b =>
                 {
                     b.Navigation("Orders");
@@ -1092,7 +1144,9 @@ namespace PharmacyManagermentSystem.Migrations
 
             modelBuilder.Entity("PharmacyManagermentSystem.Model.Prescription", b =>
                 {
-                    b.Navigation("Order");
+                    b.Navigation("Orders");
+
+                    b.Navigation("PrescribeMedicines");
                 });
 
             modelBuilder.Entity("PharmacyManagermentSystem.Model.Receipt", b =>

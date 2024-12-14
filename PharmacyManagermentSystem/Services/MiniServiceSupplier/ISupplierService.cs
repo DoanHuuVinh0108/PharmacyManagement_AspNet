@@ -9,6 +9,7 @@ namespace PharmacyManagermentSystem.Services.MiniServiceSupplier
         Task<SupplierResponse> CreateSupplier(CreateSupplierRequest request);
         Task<SupplierResponse> UpdateSupplier(int id, UpdateSupplierRequest request);
         Task<List<Supplier>> GetAll();
+        Task<PaginatedList<Supplier>> GetByPage(int pageIndex, int pageSize);
         Task<bool> DeleteSupplier(int id);
     }
 }

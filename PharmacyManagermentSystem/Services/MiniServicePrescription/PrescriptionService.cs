@@ -39,6 +39,22 @@ namespace PharmacyManagermentSystem.Services.MiniServicePrescription
 
                     await _Dbcontext.Prescriptions.AddAsync(prescription);
                     await _Dbcontext.SaveChangesAsync();
+                    var prescribeMedicine = new List<PrescribeMedicine>();
+                   
+                    foreach(var item in request.Medicines)
+                    {
+                        var data = new PrescribeMedicine()
+                        {
+                            MedicineId = item.MedicineId,
+                            MedicineName = item.MedicineName,
+                            Quantity = item.Quantity,
+                            PrecsriptionId = prescription.Id
+                        };
+                        prescribeMedicine.Add(data);
+                       
+                    }
+                    await _Dbcontext.PrescribeMedicines.AddRangeAsync(prescribeMedicine);
+                    await _Dbcontext.SaveChangesAsync();
                     transaction.Commit();
                     return new PrescriptionResponse()
                     {
@@ -69,6 +85,8 @@ namespace PharmacyManagermentSystem.Services.MiniServicePrescription
                     }
                     var deleteResult = await _uploadService.DeleteImage(prescription.ImageId);
                     _Dbcontext.Prescriptions.Remove(prescription);
+                    var prescribeMedicines = _Dbcontext.PrescribeMedicines.Where(x => x.PrecsriptionId == id);
+                    _Dbcontext.PrescribeMedicines.RemoveRange(prescribeMedicines);
                     await _Dbcontext.SaveChangesAsync();
                     transaction.Commit();
                     return true;
@@ -126,5 +144,68 @@ namespace PharmacyManagermentSystem.Services.MiniServicePrescription
         {
            return await _Dbcontext.Prescriptions.ToListAsync();
         }
+        public async Task<PaginatedList<PrescriptionResponse>> GetByPage(int pageIndex, int pageSize)
+        {
+            if (pageIndex < 1) pageIndex = 1;
+            if (pageSize < 1) pageSize = 10;
+            var totalItems = await _Dbcontext.Prescriptions.CountAsync();
+            var prescriptions = await _Dbcontext.Prescriptions
+                                             .Skip((pageIndex - 1) * pageSize)
+                                             .Take(pageSize)
+                                             .Include(x => x.Customer)
+                                             .Include(x => x.Doctor)
+                                             .Select(x => new PrescriptionResponse
+                                             {
+                                                 Id = x.Id,
+                                                 Image = x.Image,
+                                                 ImageId = x.ImageId,
+                                                 CustomerId = x.CustomerId,
+                                                 CustomerName = x.Customer.FullName,
+                                                 DoctorName = x.Doctor.Name,
+                                                 DoctorId = x.DoctorId
+                                             }).ToListAsync();
+            return new PaginatedList<PrescriptionResponse>
+            {
+                Items = prescriptions,
+                TotalItems = totalItems,
+                Page = pageIndex,
+                PageSize = pageSize
+            };
+        }
+        public async Task<PrescriptionByIdResponse> GetById(string id)
+        {
+            var prescription = await _Dbcontext.Prescriptions
+                                             .Include(x => x.Customer)
+                                             .Include(x => x.Doctor)
+                                             .Select(prescription => new PrescriptionByIdResponse
+                                             {
+                                                 Id = prescription.Id,
+                                                 Image = prescription.Image,
+                                                 ImageId = prescription.ImageId,
+                                                 CustomerId = prescription.CustomerId,
+                                                 CustomerName = prescription.Customer.FullName,
+                                                 DoctorName = prescription.Doctor.Name,
+                                                 DoctorId = prescription.DoctorId
+                                             })
+                                             .FirstOrDefaultAsync(x => x.Id == id);
+            if(prescription == null)
+            {
+               throw new Exception("Prescription not found");
+            }                                 
+            
+            var medicines = _Dbcontext.PrescribeMedicines.Where(x => x.PrecsriptionId == id)
+                                     .Select(x => new PrescribeMedicineResponse
+                                     {
+                                         MedicineId = x.MedicineId,
+                                         MedicineName = x.MedicineName,
+                                         Quantity = x.Quantity,
+                                         PrecsriptionId = x.PrecsriptionId
+                                     }).ToList();
+            prescription.PrescribeMedicines = medicines;
+            return prescription;
+
+            
+        }
+
     }
 }

@@ -6,14 +6,12 @@ namespace PharmacyManagermentSystem.Request
     public class CreateUserShiftRequest
     {
         public string EmployeeId { get; set; }
-        public string NameShift { get; set; }
         public DateOnly Date { get; set; }
         public int PharmacyId { get; set; }
     }
     public class UpdateUserShiftRequest
     {
         public string EmployeeId { get; set; }
-        public string NameShift { get; set; }
         public DateOnly Date { get; set; }
         public int PharmacyId { get; set; }
         public string NewEmployeeId { get; set; }
@@ -24,7 +22,6 @@ namespace PharmacyManagermentSystem.Request
     public class DeleteUserShiftRequest
     {
         public string EmployeeId { get; set; }
-        public string NameShift { get; set; }
         public DateOnly Date { get; set; }
         public int PharmacyId { get; set; }
 

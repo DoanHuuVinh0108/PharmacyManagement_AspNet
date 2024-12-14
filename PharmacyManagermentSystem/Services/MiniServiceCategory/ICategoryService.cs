@@ -9,6 +9,9 @@ namespace PharmacyManagermentSystem.Services.MiniServiceCategory
         Task<CategoryResponse> CreateCategory(CreateCategoryRequest request);
         Task<CategoryResponse> UpdateCategory(UpdateCategoryRequest request);
         Task<bool> DeleteCategory(string id);
-        Task<List<Category>> GetAll();
+        Task<List<FindResponse>> FindByName(string medicineName);
+        Task<PaginatedList<CategoryResponse>> GetAll(int pageIndex, int pageSize);
+        Task<FindResponse> getById(string id);
     }
 }
+    

@@ -8,6 +8,8 @@ namespace PharmacyManagermentSystem.Model
         [Key]
         public int Id { get; set; }
         public string Status { get; set; }
+        public double TotalPrice { get; set; }
+        public DateOnly Date { get; set; }
         public int PharmacyId { get; set; }
         public Pharmacy Pharmacy { get; set; } =null!;
         public string CustomerId { get; set; }
@@ -18,5 +20,6 @@ namespace PharmacyManagermentSystem.Model
         public User Employee { get; set; } = null!;
         public string? PrescriptionId { get; set; }
         public Prescription? Prescription { get; set; }
+        public ICollection<OrderDetail> OrderDetails { get; set; } = new HashSet<OrderDetail>();
     }
 }

@@ -9,6 +9,8 @@ using PharmacyManagermentSystem.Services.MiniServiceCaching;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using PharmacyManagermentSystem.Services.MiniServiceEmail;
 
 namespace PharmacyManagermentSystem.Services.MiniServiceAuth
 {
@@ -19,13 +21,15 @@ namespace PharmacyManagermentSystem.Services.MiniServiceAuth
         private readonly IConfiguration _configuration;
         private readonly ICachingService _cachingService;
         private readonly MyDbContext _dbcontext;
-        public AuthService(SignInManager<User> signInManager, UserManager<User> userManager, IConfiguration configuration, ICachingService cachingService, MyDbContext dbcontext)
+        private readonly IEmailService _emailService;
+        public AuthService(SignInManager<User> signInManager, UserManager<User> userManager, IConfiguration configuration, ICachingService cachingService, MyDbContext dbcontext, IEmailService emailService)
         {
             _signInManager = signInManager;
             _userManager = userManager;
             _configuration = configuration;
             _cachingService = cachingService;
             _dbcontext = dbcontext;
+            _emailService = emailService;
         }
 
         private string CreateJwt(User user, IEnumerable<string> roles, DateTime time, bool RefreshToken)
@@ -76,14 +80,15 @@ namespace PharmacyManagermentSystem.Services.MiniServiceAuth
                 {
                     var roles = await _userManager.GetRolesAsync(userResult);
                     var time = DateTime.UtcNow.AddMinutes(30);
-                    var accessToken = CreateJwt(userResult, roles, DateTime.Now.AddMinutes(6), false);
-                    var refreshToken = CreateJwt(userResult, roles, DateTime.Now.AddDays(1), true);
+                    var accessToken = CreateJwt(userResult, roles, DateTime.Now.AddDays(1), false);
+                    //var refreshToken = CreateJwt(userResult, roles, DateTime.Now.AddDays(1), true);
                     return new JwtResponse
                     {
                         AccessToken = accessToken,
-                        RefreshToken = refreshToken,
                         UserId = userResult.Id,
-                        Roles = roles
+                        FullName = userResult.FullName,
+                        Roles = roles,
+                        PharmacyId = userResult.PharmacyId ?? 0
                     };
                 }
                 throw new Exception("User Not Found");
@@ -151,6 +156,28 @@ namespace PharmacyManagermentSystem.Services.MiniServiceAuth
         //        throw new Exception("Không tìm thấy user");
         //    }
         //}
+        //public bool VerifyResetToken(string email, string token)
+        //{
+        //    var cachedToken = _cachingService.Get<string>(email);
+        //    if (cachedToken == null || cachedToken != token) return false;
+        //    else
+        //    {
+        //        return true;
+        //    }
+        //}
+        public async Task<bool> SendPasswordResetTokenAsync(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null) return false;
+
+            var token = new Random().Next(100000, 999999).ToString();
+            _cachingService.Set(email, token, TimeSpan.FromMinutes(5));
+
+            var message = $"Your password reset code is: {token}";
+            await _emailService.SendEmailAsync(email, "Reset Password", message);
+
+            return true;
+        }
         public bool VerifyResetToken(string email, string token)
         {
             var cachedToken = _cachingService.Get<string>(email);
@@ -159,6 +186,24 @@ namespace PharmacyManagermentSystem.Services.MiniServiceAuth
             {
                 return true;
             }
+        }
+        public async Task<bool> ResetPasswordAsync(string email, string token, string newPassword)
+        {
+            var isTokenValid = VerifyResetToken(email, token);
+            if (!isTokenValid) return false;
+
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                return false;
+            }
+
+            var t = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+            var result = await _userManager.ResetPasswordAsync(user, t, newPassword);
+            await _userManager.UpdateSecurityStampAsync(user);
+            _cachingService.Remove(email);
+            return result.Succeeded;
         }
     }
 }

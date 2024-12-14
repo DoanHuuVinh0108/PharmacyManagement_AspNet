@@ -1,11 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PharmacyManagermentSystem.Request;
 using PharmacyManagermentSystem.Services.MiniServiceSalary;
+using Microsoft.AspNetCore.Authorization;
+using PharmacyManagermentSystem.Model;
 
 namespace PharmacyManagermentSystem.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(Roles="Admin")]
     public class SalaryController : ControllerBase
     {
         private readonly ISalaryService _salaryService;
@@ -13,12 +16,12 @@ namespace PharmacyManagermentSystem.Controllers
         {
             _salaryService = salaryService;
         }
-        [HttpGet("getAll")]
-        public async Task<IActionResult> GetAllSalary()
+        [HttpGet("getAll/{pageIndex}/{pageSize}/{pharmacyId}")]
+        public async Task<IActionResult> GetAllSalary(int pageIndex, int pageSize, int pharmacyId)
         {
             try
             {
-                var result = await _salaryService.GetAllSalary();
+                var result = await _salaryService.GetAllSalary(pageIndex,pageSize,pharmacyId);
                 return Ok(result);
             }
             catch(Exception ex)
@@ -52,12 +55,13 @@ namespace PharmacyManagermentSystem.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
-        [HttpDelete("delete")]
-        public async Task<IActionResult> DeleteSalary([FromBody] DeleteSalaryRequest payload)
+        [HttpDelete("delete/{month}/{year}/{employeeId}")]
+        public async Task<IActionResult> DeleteSalary(int month, int year, string employeeId)
         {
             try
             {
-                var result = await _salaryService.DeleteSalary(payload);
+               
+                var result = await _salaryService.DeleteSalary(month,year,employeeId);
                 return Ok(result);
             }
             catch(Exception ex)

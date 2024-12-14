@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using PharmacyManagermentSystem.Request;
 using PharmacyManagermentSystem.Services.MiniServiceSupplier;
 
@@ -6,6 +7,7 @@ namespace PharmacyManagermentSystem.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin,Employee")]
     public class SupplierController : ControllerBase
     {
         private readonly ISupplierService _supplierService;
@@ -25,6 +27,19 @@ namespace PharmacyManagermentSystem.Controllers
                 return StatusCode(500, ex.Message);
             }
            
+        }
+        [HttpGet("getByPage/{pageIndex}/{pageSize}")]
+        public async Task<IActionResult> GetByPage(int pageIndex, int pageSize)
+        {
+            try
+            {
+                var suppliers = await _supplierService.GetByPage(pageIndex, pageSize);
+                return Ok(suppliers);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
         [HttpPost("add")]
         public async Task<IActionResult> CreateSupplier([FromBody] CreateSupplierRequest request)

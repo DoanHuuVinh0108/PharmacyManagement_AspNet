@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using PharmacyManagermentSystem.Request;
 using PharmacyManagermentSystem.Services.MiniServiceShift;
 
@@ -6,6 +7,7 @@ namespace PharmacyManagermentSystem.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(Roles = "Admin,Employee")]
     public class ShiftController : ControllerBase
     {
         private readonly IShiftService _shiftService;
@@ -13,12 +15,12 @@ namespace PharmacyManagermentSystem.Controllers
         {
             _shiftService = shiftService;
         }
-        [HttpGet("getAll")]
-        public async Task<IActionResult> GetAll()
+        [HttpGet("getAll/{from}/{to}/{pharmacyId}")]
+        public async Task<IActionResult> GetAll(DateOnly from, DateOnly to, int pharmacyId)
         {
             try
             {
-                var response = await _shiftService.GetAll();
+                var response = await _shiftService.GetAll(from,to,pharmacyId);
                 return Ok(response);
             }
             catch(Exception ex)
@@ -27,6 +29,7 @@ namespace PharmacyManagermentSystem.Controllers
             }
         }
         [HttpPost("add")]
+        [Authorize(Roles="Admin")]
         public async Task<IActionResult> CreateShift([FromBody] CreateShiftRequest request)
         {
             try
@@ -40,6 +43,7 @@ namespace PharmacyManagermentSystem.Controllers
             }
         }
         [HttpPut("update")]
+        [Authorize(Roles="Admin")]
         public async Task<IActionResult> UpdateShift([FromBody] UpdateShiftRequest request)
         {
             try
@@ -53,6 +57,7 @@ namespace PharmacyManagermentSystem.Controllers
             }
         }
         [HttpDelete("delete")]
+        [Authorize(Roles="Admin")]
         public async Task<IActionResult> DeleteShift([FromBody] DeleteShiftRequest request)
         {
             try
@@ -61,6 +66,18 @@ namespace PharmacyManagermentSystem.Controllers
                 return Ok(response);
             }
             catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+        [HttpGet("getByPage/{pageIndex}/{pageSize}/{pharmacyId}")]
+        public async Task<IActionResult> GetByPage(int pageIndex, int pageSize, int pharmacyId)
+        {
+            try
+            {
+                var response = await _shiftService.getByPage(pageIndex, pageSize, pharmacyId);
+                return Ok(response);
+            }catch(Exception ex)
             {
                 return StatusCode(500, ex.Message);
             }

@@ -7,6 +7,7 @@ namespace PharmacyManagermentSystem.Request
     {
         public string Description { get; set; }
         public int Quantity { get; set; }
+        public double Price { get; set; }
         public string Status { get; set; }
         public string CategoryId { get; set; }
         public string MedicineId { get; set; }
@@ -20,6 +21,7 @@ namespace PharmacyManagermentSystem.Request
         public string Description { get; set; }
         public int Quantity { get; set; }
         public string Status { get; set; }
+        public double Price { get; set; }
         public string CategoryId { get; set; }
         public string MedicineId { get; set; }
         public string BatchNumber { get; set; }

@@ -13,33 +13,58 @@ namespace PharmacyManagermentSystem.Services.MiniServiceReturnSupplier
         {
             _Dbcontext = Dbcontext;
         }
-        public async Task<ReturnSupplierResponse> CreateReturnSupplier (CreateReturnSupplierRequest request)
+        public async Task<ReturnSupplierResponse> CreateReturnSupplier(CreateReturnSupplierRequest request)
         {
-            var returnSupplier = new ReturnSupplier
+            using (var transaction = _Dbcontext.Database.BeginTransaction())
             {
-                Description = request.Description,
-                Quantity = request.Quantity,
-                Status = request.Status,
-                CategoryId = request.CategoryId,
-                MedicineId = request.MedicineId,
-                BatchNumber = request.BatchNumber,
-                SupplierId = request.SupplierId,
-                EmployeeId = request.EmployeeId
-            };
-            _Dbcontext.ReturnSuppliers.Add(returnSupplier);
-            await _Dbcontext.SaveChangesAsync();
-            return new ReturnSupplierResponse
-            {
-                Description = returnSupplier.Description,
-                Quantity = returnSupplier.Quantity,
-                Status = returnSupplier.Status,
-                CategoryId = returnSupplier.CategoryId,
-                MedicineId = returnSupplier.MedicineId,
-                BatchNumber = returnSupplier.BatchNumber,
-                SupplierId = returnSupplier.SupplierId,
-                EmployeeId = returnSupplier.EmployeeId
-            };
+                try
+                {
+                    var medicine = await _Dbcontext.Medicines.FirstOrDefaultAsync(x => x.Id == request.MedicineId && x.CategoryId == request.CategoryId && x.BatchNumber == request.BatchNumber);
+                    if (medicine == null)
+                    {
+                        throw new Exception("Medicine not found");
+                    }
 
+                    var returnSupplier = new ReturnSupplier
+                    {
+                        Description = request.Description,
+                        Quantity = request.Quantity,
+                        Status = request.Status,
+                        CategoryId = request.CategoryId,
+                        MedicineId = request.MedicineId,
+                        BatchNumber = request.BatchNumber,
+                        SupplierId = request.SupplierId,
+                        EmployeeId = request.EmployeeId,
+                        Price = request.Price,
+                        Date = DateOnly.FromDateTime(DateTime.Now)
+                    };
+
+                    medicine.Quantity -= request.Quantity;
+                    _Dbcontext.ReturnSuppliers.Add(returnSupplier);
+
+
+                    await _Dbcontext.SaveChangesAsync();
+                    transaction.Commit();
+
+                    return new ReturnSupplierResponse
+                    {
+                        Description = returnSupplier.Description,
+                        Quantity = returnSupplier.Quantity,
+                        Status = returnSupplier.Status,
+                        CategoryId = returnSupplier.CategoryId,
+                        MedicineId = returnSupplier.MedicineId,
+                        BatchNumber = returnSupplier.BatchNumber,
+                        SupplierId = returnSupplier.SupplierId,
+                        EmployeeId = returnSupplier.EmployeeId,
+                        Price = returnSupplier.Price
+                    };
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    throw ex;
+                }
+            }
         }
         public async Task<ReturnSupplierResponse> UpdateReturnSupplier( UpdateReturnSupplierRequest request)
         {
@@ -65,10 +90,41 @@ namespace PharmacyManagermentSystem.Services.MiniServiceReturnSupplier
                 EmployeeId = result.EmployeeId
             };
         }
-        public async Task<List<ReturnSupplier>> GetAll()
+        public async Task<PaginatedList<ReturnSupplierResponse>> GetAll(int pageIndex, int pageSize, int pharmacyId)
         {
-           var returnSuppliers = await _Dbcontext.ReturnSuppliers.ToListAsync();
-           return returnSuppliers;
+            if (pageIndex < 1) pageIndex = 1;
+            if (pageSize < 1) pageSize = 10;
+            var totalItems = await _Dbcontext.ReturnSuppliers.Where(x => x.Medicine.PharmacyId==pharmacyId).CountAsync();
+            var returnSuppliers = await _Dbcontext.ReturnSuppliers
+                                             .Skip((pageIndex - 1) * pageSize)
+                                             .Take(pageSize)
+                                             .Include(x => x.Medicine)
+                                             .Include(x => x.Supplier)
+                                             .Include(x => x.Employee)
+                                             .Where(x => x.Medicine.PharmacyId == pharmacyId)
+                                             .Select(x => new ReturnSupplierResponse
+                                             {
+                                                 Description = x.Description,
+                                                 Quantity = x.Quantity,
+                                                 Status = x.Status,
+                                                 CategoryId = x.CategoryId,
+                                                 MedicineId = x.MedicineId,
+                                                 BatchNumber = x.BatchNumber,
+                                                 SupplierId = x.SupplierId,
+                                                 EmployeeId = x.EmployeeId,
+                                                 CategoryName = x.Medicine.Category.MedicineName,
+                                                 SupplierName = x.Supplier.Name,
+                                                 EmployeeName = x.Employee.FullName,
+                                                 Price = x.Price
+                                             }).ToListAsync();
+            return new PaginatedList<ReturnSupplierResponse>
+            {
+                Items = returnSuppliers,
+                TotalItems = totalItems,
+                Page = pageIndex,
+                PageSize = pageSize
+            };
+           
         }
         public async Task<bool> Delete(DeleteReturnSupplierRequest request)
         {
@@ -77,6 +133,12 @@ namespace PharmacyManagermentSystem.Services.MiniServiceReturnSupplier
             {
                 throw new Exception("ReturnSupplier not found");
             }
+            var medicine = await _Dbcontext.Medicines.FirstOrDefaultAsync(x => x.Id == request.MedicineId && x.CategoryId == request.CategoryId && x.BatchNumber == request.BatchNumber);
+            if (medicine == null)
+            {
+                throw new Exception("Medicine not found");
+            }
+            medicine.Quantity += result.Quantity;
             _Dbcontext.ReturnSuppliers.Remove(result);
             await _Dbcontext.SaveChangesAsync();
             return true;
